@@ -271,3 +271,4 @@ Use this script as a speaking guide for the demonstration video:
 ## License
 
 MIT License. Developed for the Senior Backend Take-Home Assessment.
+
