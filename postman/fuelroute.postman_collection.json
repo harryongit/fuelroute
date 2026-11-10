@@ -1,0 +1,176 @@
+{
+  "info": {
+    "_postman_id": "fuelroute-api-collection-v1",
+    "name": "FuelRoute API",
+    "description": "Optimal Fuel Stop & Highway Route Planner API for long-distance driving across the United States.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Route: Dallas, TX -> Los Angeles, CA",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"start\": \"Dallas, TX\",\n  \"finish\": \"Los Angeles, CA\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/route/",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "route", ""]
+        },
+        "description": "Mid-continent to West Coast corridor (~1,432 miles). Expected ~7 stops."
+      }
+    },
+    {
+      "name": "2. Route: New York, NY -> Los Angeles, CA",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"start\": \"New York, NY\",\n  \"finish\": \"Los Angeles, CA\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/route/",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "route", ""]
+        },
+        "description": "Coast-to-coast long-haul trip (~2,800 miles). Expected multiple stops (~14 stops) with ~230 gallons purchased."
+      }
+    },
+    {
+      "name": "3. Route: Miami, FL -> Seattle, WA",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"start\": \"Miami, FL\",\n  \"finish\": \"Seattle, WA\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/route/",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "route", ""]
+        },
+        "description": "Corner-to-corner diagonal US road trip (~3,300 miles). Expected ~16 stops."
+      }
+    },
+    {
+      "name": "4. Route: Chicago, IL -> Detroit, MI (Short - 0 Stops)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"start\": \"Chicago, IL\",\n  \"finish\": \"Detroit, MI\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/route/",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "route", ""]
+        },
+        "description": "Regional short route (~282 miles). Within vehicle range (500 miles); requires 0 stops and $0 fuel cost."
+      }
+    },
+    {
+      "name": "5. Route: Query Params (GET)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/route/?start=Dallas,%20TX&finish=Los%20Angeles,%20CA",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "route", ""],
+          "query": [
+            {
+              "key": "start",
+              "value": "Dallas, TX"
+            },
+            {
+              "key": "finish",
+              "value": "Los Angeles, CA"
+            }
+          ]
+        },
+        "description": "GET request supporting query parameters for quick browser or query testing."
+      }
+    },
+    {
+      "name": "6. Error: Invalid Input (Outside USA - 400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"start\": \"51.5074,-0.1278\",\n  \"finish\": \"Dallas, TX\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/route/",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "route", ""]
+        },
+        "description": "Coordinates in London, UK. Validates that coordinates outside the continental USA return a clean 400 error."
+      }
+    },
+    {
+      "name": "7. Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/health/",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "health", ""]
+        },
+        "description": "Health status and indexed station count."
+      }
+    },
+    {
+      "name": "8. OpenAPI Swagger Documentation",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/docs/",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "docs", ""]
+        },
+        "description": "Interactive OpenAPI documentation powered by drf-spectacular."
+      }
+    }
+  ]
+}

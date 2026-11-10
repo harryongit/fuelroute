@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FuelRoute - Optimal Driving Route & Fuel Stops</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body, html { height: 100%; width: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #1e293b; background: #0f172a; }
+    #map { height: 100%; width: 100%; z-index: 1; }
+
+    .header-card {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(8px);
+      padding: 16px 20px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      max-width: 420px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #0284c7;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.25;
+      margin-bottom: 12px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      background: #f8fafc;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+    }
+
+    .stat-value {
+      font-size: 15px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .stat-value.highlight {
+      color: #16a34a;
+    }
+
+    /* Numbered stop marker */
+    .stop-marker-pin {
+      width: 32px;
+      height: 32px;
+      border-radius: 50% 50% 50% 0;
+      background: #f59e0b;
+      position: absolute;
+      transform: rotate(-45deg);
+      left: 50%;
+      top: 50%;
+      margin: -22px 0 0 -16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+      border: 2px solid #ffffff;
+    }
+
+    .stop-marker-number {
+      transform: rotate(45deg);
+      font-weight: 800;
+      font-size: 13px;
+      color: #ffffff;
+    }
+
+    .origin-marker-pin {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #10b981;
+      border: 3px solid #ffffff;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
+    }
+
+    .dest-marker-pin {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #ef4444;
+      border: 3px solid #ffffff;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
+    }
+
+    .popup-content {
+      padding: 4px;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .popup-title {
+      font-weight: 800;
+      color: #0f172a;
+      font-size: 14px;
+      margin-bottom: 4px;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 4px;
+    }
+
+    .popup-badge {
+      display: inline-block;
+      background: #ecfdf5;
+      color: #047857;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      margin-bottom: 6px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header-card">
+    <div class="brand">⛽ FuelRoute Optimizer</div>
+    <div class="title">{{ start_name }} &rarr; {{ finish_name }}</div>
+    <div class="stats-grid">
+      <div class="stat-item">
+        <span class="stat-label">Total Distance</span>
+        <span class="stat-value">{{ distance_miles }} mi</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Estimated Time</span>
+        <span class="stat-value">{{ duration_formatted }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Fuel Stops</span>
+        <span class="stat-value">{{ fuel_stops|length }} stop{% if fuel_stops|length != 1 %}s{% endif %}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Total Fuel Cost</span>
+        <span class="stat-value highlight">${{ total_fuel_cost }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Gallons Bought</span>
+        <span class="stat-value">{{ total_gallons }} gal</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Vehicle Specs</span>
+        <span class="stat-value" style="font-size: 12px;">500 mi (10 MPG)</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="map"></div>
+
+  {{ map_data_json|json_script:"map-data" }}
+
+  <script>
+    const mapData = JSON.parse(document.getElementById('map-data').textContent);
+
+    const map = L.map('map', {
+      zoomControl: false
+    });
+
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 18
+    }).addTo(map);
+
+    // Draw route polyline (GeoJSON coordinates are [lng, lat])
+    const latLngs = mapData.route_coordinates.map(coord => [coord[1], coord[0]]);
+    const polyline = L.polyline(latLngs, {
+      color: '#0284c7',
+      weight: 5,
+      opacity: 0.85,
+      lineJoin: 'round'
+    }).addTo(map);
+
+    // Start Marker
+    const startIcon = L.divIcon({
+      className: 'origin-marker-container',
+      html: '<div class="origin-marker-pin"></div>',
+      iconSize: [24, 24],
+      iconAnchor: [12, 12]
+    });
+    L.marker([mapData.start.lat, mapData.start.lng], { icon: startIcon })
+      .addTo(map)
+      .bindPopup(`<b>Start Origin</b><br/>${mapData.start.resolved}`);
+
+    // Finish Marker
+    const destIcon = L.divIcon({
+      className: 'dest-marker-container',
+      html: '<div class="dest-marker-pin"></div>',
+      iconSize: [24, 24],
+      iconAnchor: [12, 12]
+    });
+    L.marker([mapData.finish.lat, mapData.finish.lng], { icon: destIcon })
+      .addTo(map)
+      .bindPopup(`<b>Final Destination</b><br/>${mapData.finish.resolved}`);
+
+    // Fuel Stops Markers
+    mapData.fuel_stops.forEach(stop => {
+      const stopIcon = L.divIcon({
+        className: 'stop-marker-container',
+        html: `<div class="stop-marker-pin"><div class="stop-marker-number">${stop.order}</div></div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -28]
+      });
+
+      const popupHtml = `
+        <div class="popup-content">
+          <div class="popup-title">Stop #${stop.order}: ${stop.station.name}</div>
+          <div class="popup-badge">$${stop.station.price_per_gallon.toFixed(3)} / gal</div>
+          <div><b>Address:</b> ${stop.station.address || 'N/A'}, ${stop.station.city}, ${stop.station.state}</div>
+          <div><b>Mile Marker:</b> ${stop.mile_marker.toFixed(1)} mi (${stop.distance_off_route_miles.toFixed(1)} mi off route)</div>
+          <div><b>Fuel Purchased:</b> ${stop.gallons_purchased.toFixed(2)} gallons</div>
+          <div><b>Subtotal:</b> $${stop.cost.toFixed(2)}</div>
+        </div>
+      `;
+
+      L.marker([stop.station.lat, stop.station.lng], { icon: stopIcon })
+        .addTo(map)
+        .bindPopup(popupHtml);
+    });
+
+    // Fit map bounds to show full route
+    map.fitBounds(polyline.getBounds(), { padding: [60, 60] });
+  </script>
+</body>
+</html>
+
