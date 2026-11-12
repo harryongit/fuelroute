@@ -1,0 +1,9 @@
+$kind: http-request
+name: "5. Route: Query Params (GET)"
+description: GET request supporting query parameters for quick browser or query testing.
+url: "{{baseUrl}}/api/route/?start=Dallas, TX&finish=Los Angeles, CA"
+method: GET
+queryParams:
+  start: Dallas, TX
+  finish: Los Angeles, CA
+order: 5000

@@ -1,0 +1,15 @@
+$kind: http-request
+name: "4. Route: Chicago, IL -> Detroit, MI (Short - 0 Stops)"
+description: Regional short route (~282 miles). Within vehicle range (500 miles); requires 0 stops and $0 fuel cost.
+url: "{{baseUrl}}/api/route/"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "start": "Chicago, IL",
+      "finish": "Detroit, MI"
+    }
+order: 4000

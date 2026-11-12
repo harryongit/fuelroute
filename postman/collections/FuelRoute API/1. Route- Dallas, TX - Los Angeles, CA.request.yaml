@@ -1,0 +1,15 @@
+$kind: http-request
+name: "1. Route: Dallas, TX -> Los Angeles, CA"
+description: Mid-continent to West Coast corridor (~1,432 miles). Expected ~7 stops.
+url: "{{baseUrl}}/api/route/"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "start": "Dallas, TX",
+      "finish": "Los Angeles, CA"
+    }
+order: 1000

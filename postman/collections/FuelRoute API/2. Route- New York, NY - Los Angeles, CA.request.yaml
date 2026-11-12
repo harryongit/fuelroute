@@ -1,0 +1,15 @@
+$kind: http-request
+name: "2. Route: New York, NY -> Los Angeles, CA"
+description: Coast-to-coast long-haul trip (~2,800 miles). Expected multiple stops (~14 stops) with ~230 gallons purchased.
+url: "{{baseUrl}}/api/route/"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "start": "New York, NY",
+      "finish": "Los Angeles, CA"
+    }
+order: 2000

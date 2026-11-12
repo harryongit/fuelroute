@@ -1,0 +1,15 @@
+$kind: http-request
+name: "3. Route: Miami, FL -> Seattle, WA"
+description: Corner-to-corner diagonal US road trip (~3,300 miles). Expected ~16 stops.
+url: "{{baseUrl}}/api/route/"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "start": "Miami, FL",
+      "finish": "Seattle, WA"
+    }
+order: 3000

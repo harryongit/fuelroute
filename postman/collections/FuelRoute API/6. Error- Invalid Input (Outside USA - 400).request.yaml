@@ -1,0 +1,15 @@
+$kind: http-request
+name: "6. Route: Houston, TX -> Dallas, TX"
+description: Route from Houston, TX to Dallas, TX. Validates a successful route request within the continental USA.
+url: "{{baseUrl}}/api/route/"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "start": "Houston, TX",
+      "finish": "Dallas, TX"
+    }
+order: 6000

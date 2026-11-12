@@ -1,0 +1,4 @@
+$kind: collection
+description: Optimal Fuel Stop & Highway Route Planner API for long-distance driving across the United States.
+variables:
+  baseUrl: http://127.0.0.1:8000

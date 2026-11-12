@@ -1,0 +1,5 @@
+$kind: http-request
+description: Health status and indexed station count.
+url: "{{baseUrl}}/api/health/"
+method: GET
+order: 7000

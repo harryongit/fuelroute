@@ -1,0 +1,5 @@
+$kind: http-request
+description: Interactive OpenAPI documentation powered by drf-spectacular.
+url: "{{baseUrl}}/api/docs/"
+method: GET
+order: 8000
